@@ -118,9 +118,16 @@ def handle_user_message(user_number, text):
         # User replied with city
         answers.append(text)
 
-        send_whatsapp_text(user_number, "Thank you! We have received your details. ✅")
+        # ✅ Updated final message
+        send_whatsapp_text(
+            user_number,
+            "Thank you! We have received your details. ✅\n\n"
+            "Our staff will reach out to you shortly.\n"
+            "Business Hours: 10:30 AM to 7:30 PM, Monday To Saturday\n"
+            "For emergencies, please contact: 98941 45444"
+        )
 
-        # UPDATED summary to match new questions
+        # Summary to forward internally
         summary = (
             f"New lead from WhatsApp:\n"
             f"WhatsApp Number: {user_number}\n\n"
