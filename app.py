@@ -14,10 +14,22 @@ PHONE_NUMBER_ID = os.environ.get("PHONE_NUMBER_ID")  # from "API Setup" screen
 VERIFY_TOKEN = os.environ.get("VERIFY_TOKEN", "my_secret_token")  # same as in dashboard
 FORWARD_TO_NUMBER = os.environ.get("FORWARD_TO_NUMBER")  # the other WhatsApp number (with country code, no +)
 
-# Our 3 questions
+# Our 3 questions (UPDATED)
 QUESTIONS = [
-    "1) Do you have outstanding bills for the current month?",
-    "2) What is your approximate cash requirement?",
+    (
+        "Hello,\n"
+        "Happy Folks!\n\n"
+        "1) Welcome to I WALLET FIN TECHNOLOGY.\n"
+        "We’re delighted to have you with us!\n\n"
+        "If you have any questions or need assistance, feel free to reach out.\n"
+        "Our support team is always here to help and will assist you as soon as possible.\n\n"
+        "To proceed further, please provide your Name and Mobile Number."
+    ),
+    (
+        "2) May I know what service you need today?\n"
+        "- Swipe\n"
+        "- Bill Payment"
+    ),
     "3) Which city are you currently in?"
 ]
 
@@ -89,28 +101,32 @@ def handle_user_message(user_number, text):
     answers = state["answers"]
 
     if step == 0 and not answers:
-        # Start → ask Q1
+        # Start → ask Q1 (welcome + ask Name & Mobile)
         send_whatsapp_text(user_number, QUESTIONS[0])
         state["step"] = 1
     elif step == 1:
+        # User replied with Name & Mobile
         answers.append(text)
         send_whatsapp_text(user_number, QUESTIONS[1])
         state["step"] = 2
     elif step == 2:
+        # User replied with service needed
         answers.append(text)
         send_whatsapp_text(user_number, QUESTIONS[2])
         state["step"] = 3
     elif step == 3:
+        # User replied with city
         answers.append(text)
 
         send_whatsapp_text(user_number, "Thank you! We have received your details. ✅")
 
+        # UPDATED summary to match new questions
         summary = (
             f"New lead from WhatsApp:\n"
-            f"Number: {user_number}\n\n"
-            f"1) Outstanding bills this month?\n{answers[0]}\n\n"
-            f"2) Approximate cash requirement?\n{answers[1]}\n\n"
-            f"3) City?\n{answers[2]}"
+            f"WhatsApp Number: {user_number}\n\n"
+            f"1) Name & Mobile (as provided):\n{answers[0]}\n\n"
+            f"2) Service needed today:\n{answers[1]}\n\n"
+            f"3) City:\n{answers[2]}"
         )
 
         if FORWARD_TO_NUMBER:
@@ -119,6 +135,7 @@ def handle_user_message(user_number, text):
         conversations.pop(user_number, None)
         return
     else:
+        # Reset if something goes off
         send_whatsapp_text(user_number, "Let's start again.")
         send_whatsapp_text(user_number, QUESTIONS[0])
         state = {"step": 1, "answers": []}
